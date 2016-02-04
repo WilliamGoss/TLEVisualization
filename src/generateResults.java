@@ -10,7 +10,7 @@ public class generateResults {
 	
 	//Goes through all of the versions of Cassandra output and creates the result objects
 	//Give the path of the file, and it will generate all of the results
-	public static List<ResultObject> parseResults(String pathLocation) throws FileNotFoundException, IOException
+	public static List<ResultObject> parseResults(String pathLocation, String version) throws FileNotFoundException, IOException
 	{
 		List<ResultObject> results = new ArrayList<ResultObject>();
 		
@@ -119,7 +119,7 @@ public class generateResults {
 					//Create the result object which contains the class name, scenario it fits best with,
 					//and the result of that scenario.
 					//System.out.println(className + ".java is matched to Scenario " + correctScenario + " with the class " + resultingClass + ".");
-					ResultObject newResult = new ResultObject(className + ".java", correctScenario, resultingClass, addedClass);
+					ResultObject newResult = new ResultObject(className + ".java", correctScenario, resultingClass, addedClass, version);
 					results.add(newResult);
 				}
 				

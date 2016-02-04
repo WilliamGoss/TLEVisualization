@@ -1,6 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -9,6 +10,7 @@ public class Program {
 
 	public static void main(String args[]) throws FileNotFoundException, IOException
 	{
+		
 		//Get all of the versions of software
 		List<String> softwareVersions = new ArrayList<String>();
 		softwareVersions = populateVersionNumber.populateNumbers();
@@ -21,7 +23,6 @@ public class Program {
 		{
 			List<ResultObject> results = new ArrayList<ResultObject>();
 			String fileLoc = "../TLE_Scenario_Checker/" + versionID + ".txt";
-			results = generateResults.parseResults(fileLoc);
 			
 			//Need to isolate the version id from the string
 			String[] versionSplit = versionID.split("-");
@@ -29,9 +30,22 @@ public class Program {
 			if (versionSplit.length > 3) { version = versionSplit[2] + "-" + versionSplit[3]; }
 			else version = versionSplit[2];
 			
+			results = generateResults.parseResults(fileLoc, version);
+			
 			versionResults.put(version, results);
 		}
 		
+		//Get all of the added and deleted classes.
+		HashSet<String> classNames = getUniqueClasses.getClasses(versionResults);
+		
+		for(String cName: classNames)
+		{
+			graphVizCreation.create(cName, versionResults);
+		}
+		
+		
+		
+		/*
 		//versionResults contains a map of all the version numbers and their results
 		//Now it needs to be used in creating graphviz outputs!
 		for(String versID: softwareVersions)
@@ -57,5 +71,7 @@ public class Program {
 				}
 			}
 		}
+		*/
+		
 	}
 }
