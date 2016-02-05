@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,19 +50,106 @@ public class graphVizCreation {
 			}
 		}
 		
-		if (relevantResults.size() == 11) 
+		if (className.equals("Memory.java")) 
 		{ 
-			System.out.println(className); 
-			for(ResultObject rs: relevantResults)
-			{
-				System.out.println("Scenario: " + rs.scenarioSelected);
-				System.out.println("Added/Deleted Class: " + rs.suppliedClass + " && Resulting Class: " + rs.selectedClass);
-				System.out.println(rs.version);
-				System.out.println(rs.addedClass);
-			}
+			drawGraph(className, relevantResults);
 		}
 		
 	}
+	
+	/*
+	 * The result objects should have been inserted by Version Number.
+	 * Thus, we can iterate through them and create the graph from left to right.
+	 */
+	public static void drawGraph(String className, List<ResultObject> results)
+	{
+		StringBuilder graph = new StringBuilder();
+		graph.append("digraph g { graph [ rankdir = \"LR\"];\nnode [ fontsize = \"16\" shape = \"record\" ];\n");
+		graph.append("edge [];\n");
+		
+		//Dictionary will contain the relationship between classes and their nodes
+		//The key will be the class name and the value will be the node.
+		HashMap<String, String> classToNode = new HashMap<String, String>();
+		
+		int nodeCount = 0;
+		int idCount = 0;
+		
+		for(ResultObject result: results)
+		{
+			String nodeValue = "";
+			switch(result.scenarioSelected)
+			{
+			case 5: {
+				//TODO: Check for multiple values
+				boolean oldNode = false;
+				if (classToNode.containsKey(result.selectedClass)) { oldNode = true; }
+				else { nodeValue = "node" + nodeCount; nodeCount++; classToNode.put(result.selectedClass, nodeValue); }
+				
+				//Always a single value since it's the added or deleted class.
+				if (classToNode.containsKey(result.suppliedClass)) { nodeValue = classToNode.get(result.suppliedClass); }
+				else { nodeValue = "node" + nodeCount; nodeCount++; classToNode.put(result.suppliedClass, nodeValue); }
+				
+				//Always draw from selectedClass to suppliedClass (Left to Right)
+				if (!oldNode)
+				{
+					graph.append("\"" + classToNode.get(result.selectedClass) + "\" [\n");
+					graph.append("label = \"<f0> " + result.selectedClass + " |<f1> Scenario " + result.scenarioSelected + " |<f2> " + result.version + "\"\n");
+					graph.append("shape = \"record\"\n");
+					graph.append("color = \"black\"\n];\n");
+				}
+				
+				graph.append("\"" + classToNode.get(result.suppliedClass) + "\" [\n");
+				graph.append("label = \"<f0> " + result.suppliedClass + " |<f1> Scenario " + result.suppliedClass + " |<f2> " + result.version + "\"\n");
+				graph.append("shape = \"record\"\n");
+				graph.append("color = \"green\"\n];\n");
+				
+				graph.append("\"" + classToNode.get(result.selectedClass) + "\":f0 -> \"" + classToNode.get(result.suppliedClass) + "\":f0 [\n");
+				graph.append("id = " + idCount + "\n");
+				idCount++;
+				graph.append("];");
+			}	
+			case 6: 
+				//Set<String> individualClasses = new HashSet<String>();
+				//if (javaCount(result.selectedClass) > 1) { individualClasses = splitClasses(result.selectedClass); }
+				//TODO: Check for multiple values
+				if (classToNode.containsKey(result.selectedClass)) { nodeValue = classToNode.get(result.selectedClass); }
+				else { nodeValue = "node" + nodeCount; nodeCount++; classToNode.put(result.selectedClass, nodeValue); }
+				
+				//Always a single value since it's the added or deleted class.
+				if (classToNode.containsKey(result.suppliedClass)) { nodeValue = classToNode.get(result.suppliedClass); }
+				else { nodeValue = "node" + nodeCount; nodeCount++; classToNode.put(result.suppliedClass, nodeValue); }
+				
+				//Always draw from selectedClass to suppliedClass (Left to Right)
+				graph.append("\"" + classToNode.get(result.selectedClass) + "\" [\n");
+				graph.append("label = \"<f0> " + result.selectedClass + " |<f1> Scenario " + result.scenarioSelected + " |<f2> " + result.version + "\"\n");
+				graph.append("shape = \"record\"\n");
+				graph.append("color = \"black\"\n];\n");
+				
+				graph.append("\"" + classToNode.get(result.suppliedClass) + "\" [\n");
+				graph.append("label = \"<f0> " + result.suppliedClass + " |<f1> Scenario " + result.suppliedClass + " |<f2> " + result.version + "\"\n");
+				graph.append("shape = \"record\"\n");
+				graph.append("color = \"green\"\n];\n");
+				
+				graph.append("\"" + classToNode.get(result.selectedClass) + "\":f0 -> \"" + classToNode.get(result.suppliedClass) + "\":f0 [\n");
+				graph.append("id = " + idCount + "\n");
+				idCount++;
+				graph.append("];");
+			}
+		}
+		
+		graph.append("\n}");
+		
+		System.out.println(graph.toString());
+	}
+	
+	
+	
+	
+	
+	
+	/*
+	 * Various useful methods below.
+	*/
 	
 	private static Set<String> splitClassesOnComma(String doubleResult)
 	{
