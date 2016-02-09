@@ -76,64 +76,96 @@ public class graphVizCreation {
 		
 		for(ResultObject result: results)
 		{
-			String nodeValue = "";
 			switch(result.scenarioSelected)
 			{
-			case 5: {
-				//TODO: Check for multiple values
-				boolean oldNode = false;
-				if (classToNode.containsKey(result.selectedClass)) { oldNode = true; }
-				else { nodeValue = "node" + nodeCount; nodeCount++; classToNode.put(result.selectedClass, nodeValue); }
+			case 1:
+			{
+				break;
+			}
+			case 2:
+			{
+				break;
+			}
+			case 3:
+			{
+				break;
+			}
+			case 4:
+			{
+				break;
+			}
+			case 5: 
+			{				
+				//graph.append("\"" + result.suppliedClass + "\" [\n");
+				//graph.append("label = \"<f0> " + result.suppliedClass + " |<f1> Scenario " + result.suppliedClass + " |<f2> " + result.version + "\"\n");
+				//graph.append("shape = \"record\"\n");
+				//graph.append("color = \"green\"\n];\n");
 				
-				//Always a single value since it's the added or deleted class.
-				if (classToNode.containsKey(result.suppliedClass)) { nodeValue = classToNode.get(result.suppliedClass); }
-				else { nodeValue = "node" + nodeCount; nodeCount++; classToNode.put(result.suppliedClass, nodeValue); }
-				
-				//Always draw from selectedClass to suppliedClass (Left to Right)
-				if (!oldNode)
-				{
-					graph.append("\"" + classToNode.get(result.selectedClass) + "\" [\n");
-					graph.append("label = \"<f0> " + result.selectedClass + " |<f1> Scenario " + result.scenarioSelected + " |<f2> " + result.version + "\"\n");
-					graph.append("shape = \"record\"\n");
-					graph.append("color = \"black\"\n];\n");
-				}
-				
-				graph.append("\"" + classToNode.get(result.suppliedClass) + "\" [\n");
-				graph.append("label = \"<f0> " + result.suppliedClass + " |<f1> Scenario " + result.suppliedClass + " |<f2> " + result.version + "\"\n");
-				graph.append("shape = \"record\"\n");
-				graph.append("color = \"green\"\n];\n");
-				
-				graph.append("\"" + classToNode.get(result.selectedClass) + "\":f0 -> \"" + classToNode.get(result.suppliedClass) + "\":f0 [\n");
-				graph.append("id = " + idCount + "\n");
-				idCount++;
-				graph.append("];");
+				//graph.append("\"" + classToNode.get(result.selectedClass) + "\":f0 -> \"" + classToNode.get(result.suppliedClass) + "\":f0 [\n");
+				//graph.append("id = " + idCount + "\n");
+				//idCount++;
+				//graph.append("];");
+				break;
 			}	
 			case 6: 
-				//Set<String> individualClasses = new HashSet<String>();
-				//if (javaCount(result.selectedClass) > 1) { individualClasses = splitClasses(result.selectedClass); }
-				//TODO: Check for multiple values
-				if (classToNode.containsKey(result.selectedClass)) { nodeValue = classToNode.get(result.selectedClass); }
-				else { nodeValue = "node" + nodeCount; nodeCount++; classToNode.put(result.selectedClass, nodeValue); }
-				
-				//Always a single value since it's the added or deleted class.
-				if (classToNode.containsKey(result.suppliedClass)) { nodeValue = classToNode.get(result.suppliedClass); }
-				else { nodeValue = "node" + nodeCount; nodeCount++; classToNode.put(result.suppliedClass, nodeValue); }
-				
+			{
 				//Always draw from selectedClass to suppliedClass (Left to Right)
-				graph.append("\"" + classToNode.get(result.selectedClass) + "\" [\n");
-				graph.append("label = \"<f0> " + result.selectedClass + " |<f1> Scenario " + result.scenarioSelected + " |<f2> " + result.version + "\"\n");
+				String nodeOne = "node" + nodeCount;
+				nodeCount++;
+				graph.append("\"" + nodeOne + "\" [\n");
+				graph.append("label = \"<f0> " + removeJava(result.selectedClass) + " |<f1> Original class |<f2> " + result.version + " |<f3> F3\"\n");
 				graph.append("shape = \"record\"\n");
 				graph.append("color = \"black\"\n];\n");
 				
-				graph.append("\"" + classToNode.get(result.suppliedClass) + "\" [\n");
-				graph.append("label = \"<f0> " + result.suppliedClass + " |<f1> Scenario " + result.suppliedClass + " |<f2> " + result.version + "\"\n");
-				graph.append("shape = \"record\"\n");
-				graph.append("color = \"green\"\n];\n");
+				String ovalNode = "node" + nodeCount;
+				nodeCount++;
+				graph.append("\"" + ovalNode + "\" [\n");
+				graph.append("label = \"Extracting\nsuperclass\"\n");
+				graph.append("shape = \"oval\"\n");
+				graph.append("color = \"black\"\n];\n");	
 				
-				graph.append("\"" + classToNode.get(result.selectedClass) + "\":f0 -> \"" + classToNode.get(result.suppliedClass) + "\":f0 [\n");
+				graph.append("\"" + nodeOne + "\":f0 -> \"" + ovalNode + "\":f0 [\n");
 				graph.append("id = " + idCount + "\n");
 				idCount++;
 				graph.append("];");
+				
+				String nodeTwo = "node" + nodeCount;
+				nodeCount++;
+				graph.append("\"" + nodeTwo + "\" [\n");
+				graph.append("label = \"<f0> " + removeJava(result.suppliedClass) + " |<f1> Extracted superclass |<f2> " + result.version + " |<f3> F3\"\n");
+				graph.append("shape = \"record\"\n");
+				graph.append("color = \"black\"\n];\n");
+				
+				String nodeThree = "node" + nodeCount;
+				nodeCount++;
+				graph.append("\"" + nodeThree + "\" [\n");
+				graph.append("label = \"<f0> " + removeJava(result.selectedClass) + " |<f1> Remnant class |<f2> " + result.version + " |<f3> F3\"\n");
+				graph.append("shape = \"record\"\n");
+				graph.append("color = \"black\"\n];\n");
+				
+				graph.append("\"" + ovalNode + "\":f0 -> \"" + nodeTwo + "\":f0 [\n");
+				graph.append("id = " + idCount + "\n");
+				idCount++;
+				graph.append("];");
+				
+				graph.append("\"" + ovalNode + "\":f0 -> \"" + nodeThree + "\":f0 [\n");
+				graph.append("id = " + idCount + "\n");
+				idCount++;
+				graph.append("];");
+				break;
+			}
+			case 7:
+			{
+				break;
+			}
+			case 8:
+			{
+				break;
+			}
+			case 9:
+			{
+				break;
+			}
 			}
 		}
 		
@@ -184,6 +216,14 @@ public class graphVizCreation {
 		String[] splitClass = classResult.split(".java");
 		totalClasses = splitClass.length;
 		return totalClasses;
+	}
+	
+	private static String removeJava(String className)
+	{
+		String cleanClass = "";
+		String[] classSplit = className.split(".java");
+		cleanClass = classSplit[0];
+		return cleanClass;
 	}
 
 }
