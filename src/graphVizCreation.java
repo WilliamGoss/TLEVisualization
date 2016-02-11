@@ -110,12 +110,20 @@ public class graphVizCreation {
 			case 6: 
 			{
 				//Always draw from selectedClass to suppliedClass (Left to Right)
-				String nodeOne = "node" + nodeCount;
-				nodeCount++;
-				graph.append("\"" + nodeOne + "\" [\n");
-				graph.append("label = \"<f0> " + removeJava(result.selectedClass) + " |<f1> Original class |<f2> " + result.version + " |<f3> F3\"\n");
-				graph.append("shape = \"record\"\n");
-				graph.append("color = \"black\"\n];\n");
+				String nodeOne = "";
+				if (classToNode.containsKey(result.selectedClass))
+				{
+					nodeOne = classToNode.get(result.selectedClass);
+				}
+				else
+				{
+					nodeOne = "node" + nodeCount;
+					nodeCount++;
+					graph.append("\"" + nodeOne + "\" [\n");
+					graph.append("label = \"<f0> " + removeJava(result.selectedClass) + " |<f1> Original class |<f2> " + result.version + " |<f3> F3\"\n");
+					graph.append("shape = \"record\"\n");
+					graph.append("color = \"black\"\n];\n");
+				}
 				
 				String ovalNode = "node" + nodeCount;
 				nodeCount++;
@@ -129,12 +137,20 @@ public class graphVizCreation {
 				idCount++;
 				graph.append("];");
 				
-				String nodeTwo = "node" + nodeCount;
-				nodeCount++;
-				graph.append("\"" + nodeTwo + "\" [\n");
-				graph.append("label = \"<f0> " + removeJava(result.suppliedClass) + " |<f1> Extracted superclass |<f2> " + result.version + " |<f3> F3\"\n");
-				graph.append("shape = \"record\"\n");
-				graph.append("color = \"black\"\n];\n");
+				String nodeTwo = "";
+				if (classToNode.containsKey(result.suppliedClass))
+				{
+					nodeTwo = classToNode.get(result.selectedClass);
+				}
+				else
+				{
+					nodeTwo = "node" + nodeCount;
+					nodeCount++;
+					graph.append("\"" + nodeTwo + "\" [\n");
+					graph.append("label = \"<f0> " + removeJava(result.suppliedClass) + " |<f1> Extracted superclass |<f2> " + result.version + " |<f3> F3\"\n");
+					graph.append("shape = \"record\"\n");
+					graph.append("color = \"black\"\n];\n");
+				}
 				
 				String nodeThree = "node" + nodeCount;
 				nodeCount++;
