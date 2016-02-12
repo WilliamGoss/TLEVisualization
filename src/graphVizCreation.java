@@ -109,16 +109,63 @@ public class graphVizCreation {
 				break;
 			}
 			case 5: 
-			{				
-				//graph.append("\"" + result.suppliedClass + "\" [\n");
-				//graph.append("label = \"<f0> " + result.suppliedClass + " |<f1> Scenario " + result.suppliedClass + " |<f2> " + result.version + "\"\n");
-				//graph.append("shape = \"record\"\n");
-				//graph.append("color = \"green\"\n];\n");
+			{		
+				//Check if the resulting class already exists from an older version.
+				//If it doesn't, it will need to be created as an original class.
+				graphVizObject gOne = null;
+				boolean oldNode = false;
+				if (classToNode.containsKey(removeJava(result.selectedClass)))
+				{
+					if (classToNode.get(removeJava(result.selectedClass)).version < result.version)
+					{
+						gOne = classToNode.get(removeJava(result.selectedClass)).gVO;
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gOne);
+					classToNode.put(removeJava(result.selectedClass), nTup);
+				}
 				
-				//graph.append("\"" + classToNode.get(result.selectedClass) + "\":f0 -> \"" + classToNode.get(result.suppliedClass) + "\":f0 [\n");
-				//graph.append("id = " + idCount + "\n");
-				//idCount++;
-				//graph.append("];");
+				//Create the oval that shows an extend class action.
+				graphVizObject gTwo = new graphVizObject(false, "Extend\nsuperclass", nodeCount);
+				nodeCount++;
+	
+				//Create an edge from the gOne node to the gTwo node.
+				if (!oldNode) { nodeGraph.addVertex(gOne); }
+				nodeGraph.addVertex(gTwo);
+				nodeGraph.addEdge(gOne, gTwo);
+				
+				//Now we need to connect the oval to the added class
+				//But first, we need to see if the class was added by another scenario
+				//within the same version.
+				graphVizObject gThree = null;
+				oldNode = false;
+				if (classToNode.containsKey(removeJava(result.suppliedClass)))
+				{
+					if (classToNode.get(removeJava(result.suppliedClass)).version == result.version)
+					{
+						gThree = classToNode.get(removeJava(result.suppliedClass)).gVO;
+						gThree.addAction("Subclass of " + removeJava(result.suppliedClass));
+						Tuple updatedNode = new Tuple(result.version, gThree);
+						classToNode.put(removeJava(result.suppliedClass), updatedNode);
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Subclass of " + removeJava(result.selectedClass), result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gThree);
+					classToNode.put(removeJava(result.suppliedClass), nTup);
+				}
+				
+				if (!oldNode) { nodeGraph.addVertex(gThree); }
+				nodeGraph.addEdge(gTwo, gThree);
+				
 				break;
 			}	
 			case 6: 
@@ -177,7 +224,7 @@ public class graphVizCreation {
 					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted superclass", result.version, "F3", nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gThree);
-					classToNode.put(removeJava(result.selectedClass), nTup);
+					classToNode.put(removeJava(result.suppliedClass), nTup);
 				}
 				
 				//Create the edge from the previously created oval to this node
