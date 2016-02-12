@@ -55,7 +55,14 @@ public class graphVizCreation {
 		
 		if (className.equals("Memory.java")) 
 		{ 
-			drawGraph(className, relevantResults);
+			for(ResultObject result: relevantResults)
+			{
+				System.out.println("Supplied Class: " + result.suppliedClass);
+				System.out.println("Result: " + result.selectedClass);
+				System.out.println("Scenario Selected: " + result.scenarioSelected);
+				System.out.println("Version: " + result.version);
+			}
+			//drawGraph(className, relevantResults);
 		}
 		
 	}
@@ -70,11 +77,11 @@ public class graphVizCreation {
 		graph.append("digraph g { graph [ rankdir = \"LR\"];\nnode [ fontsize = \"16\" shape = \"record\" ];\n");
 		graph.append("edge [];\n");
 		
-		DirectedGraph<graphVizObject, DefaultEdge> g = new DefaultDirectedGraph<graphVizObject, DefaultEdge>(DefaultEdge.class);
+		DirectedGraph<graphVizObject, DefaultEdge> nodeGraph = new DefaultDirectedGraph<graphVizObject, DefaultEdge>(DefaultEdge.class);
 		
 		//Dictionary will contain the relationship between classes and their nodes
-		//The key will be the class name and the value will be the node.
-		HashMap<String, String> classToNode = new HashMap<String, String>();
+		//The key will be the class name and the value will be the node, version.
+		HashMap<String, Tuple> classToNode = new HashMap<String, Tuple>();
 		
 		int nodeCount = 0;
 		int idCount = 0;
@@ -115,32 +122,49 @@ public class graphVizCreation {
 			case 6: 
 			{
 				//Always draw from selectedClass to suppliedClass (Left to Right)
-				String nodeOne = "";
+				
+				//Check if the suppliedClass already exists in the node dictionary.
+				//If it does, and the versions are equal or less than, just use that node.
+				//If it doesn't exist, the node needs to be created.
+				graphVizObject gOne;
+				boolean oldNode = false;
 				if (classToNode.containsKey(result.selectedClass))
 				{
-					nodeOne = classToNode.get(result.selectedClass);
+					if (classToNode.get(result.selectedClass).version == result.version || classToNode.get(result.selectedClass).version < result.version)
+					{
+						classToNode.get(result.selectedClass).gVO.addAction("Original class");
+						gOne = classToNode.get(result.selectedClass).gVO;
+						oldNode = true;
+					}
 				}
 				else
 				{
-					nodeOne = "node" + nodeCount;
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
 					nodeCount++;
-					graph.append("\"" + nodeOne + "\" [\n");
-					graph.append("label = \"<f0> " + removeJava(result.selectedClass) + " |<f1> Original class |<f2> " + result.version + " |<f3> F3\"\n");
-					graph.append("shape = \"record\"\n");
-					graph.append("color = \"black\"\n];\n");
+					Tuple nTup = new Tuple(result.version, gOne);
+					classToNode.put(removeJava(result.selectedClass), nTup);
 				}
 				
-				String ovalNode = "node" + nodeCount;
+				//Create the oval graphviz object	
+				graphVizObject gTwo = new graphVizObject(false, "Extracting\nsuperclass", nodeCount);
 				nodeCount++;
-				graph.append("\"" + ovalNode + "\" [\n");
-				graph.append("label = \"Extracting\nsuperclass\"\n");
-				graph.append("shape = \"oval\"\n");
-				graph.append("color = \"black\"\n];\n");	
+	
+				//Create an edge from the gOne node to the gTwo node.
+				if (!oldNode) { nodeGraph.addVertex(gOne); }
+				nodeGraph.addVertex(gTwo);
+				nodeGraph.addEdge(gOne, gTwo);
 				
-				graph.append("\"" + nodeOne + "\":f0 -> \"" + ovalNode + "\":f0 [\n");
-				graph.append("id = " + idCount + "\n");
-				idCount++;
-				graph.append("];");
+				//There will be two resulting classes
+				//They might be created in this version by another scenario,
+				//but if they're old, create new ones.
+				graphVizObject gThree;
+				if (classToNode.containsKey(result.suppliedClass))
+				{
+					if (classToNode.get(result.suppliedClass).version == result.version)
+					{
+						gThree = classToNode.get(result.suppliedClass).gVO;
+					}
+				}
 				
 				String nodeTwo = "";
 				if (classToNode.containsKey(result.suppliedClass))

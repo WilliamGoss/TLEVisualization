@@ -18,7 +18,7 @@ public class Program {
 		//A set to hold the versions and result for each.
 		LinkedHashMap<String, List<ResultObject>> versionResults = new LinkedHashMap<String, List<ResultObject>>();
 		
-		
+		int verCount = 0;
 		for(String versionID: softwareVersions)
 		{
 			List<ResultObject> results = new ArrayList<ResultObject>();
@@ -30,9 +30,10 @@ public class Program {
 			if (versionSplit.length > 3) { version = versionSplit[2] + "-" + versionSplit[3]; }
 			else version = versionSplit[2];
 			
-			results = generateResults.parseResults(fileLoc, version);
+			results = generateResults.parseResults(fileLoc, verCount);
 			
 			versionResults.put(version, results);
+			verCount++;
 		}
 		
 		//Get all of the added and deleted classes.

@@ -6,7 +6,7 @@ public class graphVizObject {
 	
 	public String className;
 	public String action;
-	public String version;
+	public int version;
 	public String feature;
 	public boolean isClass;
 	public int nodeID;
@@ -14,7 +14,7 @@ public class graphVizObject {
 	
 	public List<String> children;
 	
-	public graphVizObject(boolean classCheck, String cName, String cAction, String cVersion, String cFeature, int nID, boolean isAdded)
+	public graphVizObject(boolean classCheck, String cName, String cAction, int cVersion, String cFeature, int nID, boolean isAdded)
 	{
 		//Oval or Square
 		isClass = classCheck;
@@ -33,10 +33,24 @@ public class graphVizObject {
 		children = new ArrayList<String>();
 	}
 	
+	//This is for ovals ONLY!
+	public graphVizObject(boolean classCheck, String cAction, int nID)
+	{
+		isClass = classCheck;
+		action = cAction;
+		nodeID = nID;
+	}
+	
 	//Add a child to this node, which will be used to draw later on.
 	public void addChild(String nodeChild)
 	{
 		children.add(nodeChild);
+	}
+	
+	//Add an action to the object.
+	public void addAction(String nodeAction)
+	{
+		this.action = this.action + "\n" + nodeAction;
 	}
 	
 	//Call this method on itself to draw the node.

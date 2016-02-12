@@ -10,7 +10,7 @@ public class generateResults {
 	
 	//Goes through all of the versions of Cassandra output and creates the result objects
 	//Give the path of the file, and it will generate all of the results
-	public static List<ResultObject> parseResults(String pathLocation, String version) throws FileNotFoundException, IOException
+	public static List<ResultObject> parseResults(String pathLocation, int version) throws FileNotFoundException, IOException
 	{
 		List<ResultObject> results = new ArrayList<ResultObject>();
 		
