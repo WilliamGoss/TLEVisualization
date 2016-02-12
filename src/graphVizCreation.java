@@ -55,6 +55,7 @@ public class graphVizCreation {
 		
 		if (className.equals("Memory.java")) 
 		{ 
+			/*
 			for(ResultObject result: relevantResults)
 			{
 				System.out.println("Supplied Class: " + result.suppliedClass);
@@ -62,7 +63,8 @@ public class graphVizCreation {
 				System.out.println("Scenario Selected: " + result.scenarioSelected);
 				System.out.println("Version: " + result.version);
 			}
-			//drawGraph(className, relevantResults);
+			*/
+			drawGraph(className, relevantResults);
 		}
 		
 	}
@@ -126,13 +128,13 @@ public class graphVizCreation {
 				//Check if the suppliedClass already exists in the node dictionary.
 				//If it does, and the versions are equal or less than, just use that node.
 				//If it doesn't exist, the node needs to be created.
-				graphVizObject gOne;
+				graphVizObject gOne = null;
 				boolean oldNode = false;
 				if (classToNode.containsKey(result.selectedClass))
 				{
-					if (classToNode.get(result.selectedClass).version == result.version || classToNode.get(result.selectedClass).version < result.version)
+					if (classToNode.get(result.selectedClass).version < result.version)
 					{
-						classToNode.get(result.selectedClass).gVO.addAction("Original class");
+						//classToNode.get(result.selectedClass).gVO.addAction("Original class");
 						gOne = classToNode.get(result.selectedClass).gVO;
 						oldNode = true;
 					}
@@ -157,49 +159,57 @@ public class graphVizCreation {
 				//There will be two resulting classes
 				//They might be created in this version by another scenario,
 				//but if they're old, create new ones.
-				graphVizObject gThree;
+				graphVizObject gThree = null;
+				oldNode = false;
 				if (classToNode.containsKey(result.suppliedClass))
 				{
 					if (classToNode.get(result.suppliedClass).version == result.version)
 					{
 						gThree = classToNode.get(result.suppliedClass).gVO;
+						gThree.addAction("Extracted superclass");
+						Tuple updatedNode = new Tuple(result.version, gThree);
+						classToNode.put(result.suppliedClass, updatedNode);
+						oldNode = true;
 					}
-				}
-				
-				String nodeTwo = "";
-				if (classToNode.containsKey(result.suppliedClass))
-				{
-					nodeTwo = classToNode.get(result.selectedClass);
 				}
 				else
 				{
-					nodeTwo = "node" + nodeCount;
+					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted superclass", result.version, "F3", nodeCount, true);
 					nodeCount++;
-					graph.append("\"" + nodeTwo + "\" [\n");
-					graph.append("label = \"<f0> " + removeJava(result.suppliedClass) + " |<f1> Extracted superclass |<f2> " + result.version + " |<f3> F3\"\n");
-					graph.append("shape = \"record\"\n");
-					graph.append("color = \"black\"\n];\n");
+					Tuple nTup = new Tuple(result.version, gThree);
+					classToNode.put(removeJava(result.selectedClass), nTup);
 				}
 				
-				String nodeThree = "node" + nodeCount;
-				nodeCount++;
-				graph.append("\"" + nodeThree + "\" [\n");
-				graph.append("label = \"<f0> " + removeJava(result.selectedClass) + " |<f1> Remnant class |<f2> " + result.version + " |<f3> F3\"\n");
-				graph.append("shape = \"record\"\n");
-				graph.append("color = \"black\"\n];\n");
+				//Create the edge from the previously created oval to this node
+				if (!oldNode) { nodeGraph.addVertex(gThree); }
+				nodeGraph.addEdge(gTwo, gThree);
 				
-				//if (classToNode.containsKey(result.selectedClass)) { classToNode.}
-				//else { }
+				graphVizObject gFour = null;
+				oldNode = false;
+				//If originalNode is true, we know we need to create a new node.
+				if (classToNode.containsKey(result.selectedClass)) {
+					Tuple nodeCheck = classToNode.get(result.selectedClass);
+					if (!nodeCheck.gVO.action.contains("Original class"))
+					{
+						gFour = nodeCheck.gVO;
+						gFour.addAction("Remnant class");
+						Tuple updatedNode = new Tuple(result.version, gFour);
+						classToNode.put(result.selectedClass, updatedNode);
+						oldNode = true;
+					}
+				}
+				//If originalNode isn't new, then their might already be a node
+				//from this version we can use.
+				else
+				{
+					gFour = new graphVizObject(true, removeJava(result.selectedClass), "Remnant class", result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gFour);
+					classToNode.put(removeJava(result.selectedClass), nTup);
+				}
 				
-				graph.append("\"" + ovalNode + "\":f0 -> \"" + nodeTwo + "\":f0 [\n");
-				graph.append("id = " + idCount + "\n");
-				idCount++;
-				graph.append("];");
-				
-				graph.append("\"" + ovalNode + "\":f0 -> \"" + nodeThree + "\":f0 [\n");
-				graph.append("id = " + idCount + "\n");
-				idCount++;
-				graph.append("];");
+				if (!oldNode) { nodeGraph.addVertex(gFour); }
+				nodeGraph.addEdge(gTwo, gFour);
 				break;
 			}
 			case 7:
@@ -219,7 +229,9 @@ public class graphVizCreation {
 		
 		graph.append("\n}");
 		
-		System.out.println(graph.toString());
+		System.out.println(nodeGraph.toString());
+		
+		//System.out.println(graph.toString());
 	}
 	
 	
