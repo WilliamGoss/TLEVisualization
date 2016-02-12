@@ -10,10 +10,11 @@ public class graphVizObject {
 	public String feature;
 	public boolean isClass;
 	public int nodeID;
+	public boolean addCheck;
 	
 	public List<String> children;
 	
-	public graphVizObject(boolean classCheck, String cName, String cAction, String cVersion, String cFeature, int nID)
+	public graphVizObject(boolean classCheck, String cName, String cAction, String cVersion, String cFeature, int nID, boolean isAdded)
 	{
 		//Oval or Square
 		isClass = classCheck;
@@ -23,6 +24,9 @@ public class graphVizObject {
 		action = cAction;
 		version = cVersion;
 		feature = cFeature;
+		
+		//Check if the class is a deleted class, because deleted classes need dashed lines
+		addCheck = isAdded;
 		
 		//Useful node information
 		nodeID = nID;

@@ -5,6 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.jgrapht.*;
+import org.jgrapht.graph.*;
+
 
 public class graphVizCreation {
 	
@@ -66,6 +69,8 @@ public class graphVizCreation {
 		StringBuilder graph = new StringBuilder();
 		graph.append("digraph g { graph [ rankdir = \"LR\"];\nnode [ fontsize = \"16\" shape = \"record\" ];\n");
 		graph.append("edge [];\n");
+		
+		DirectedGraph<graphVizObject, DefaultEdge> g = new DefaultDirectedGraph<graphVizObject, DefaultEdge>(DefaultEdge.class);
 		
 		//Dictionary will contain the relationship between classes and their nodes
 		//The key will be the class name and the value will be the node.
@@ -158,6 +163,9 @@ public class graphVizCreation {
 				graph.append("label = \"<f0> " + removeJava(result.selectedClass) + " |<f1> Remnant class |<f2> " + result.version + " |<f3> F3\"\n");
 				graph.append("shape = \"record\"\n");
 				graph.append("color = \"black\"\n];\n");
+				
+				//if (classToNode.containsKey(result.selectedClass)) { classToNode.}
+				//else { }
 				
 				graph.append("\"" + ovalNode + "\":f0 -> \"" + nodeTwo + "\":f0 [\n");
 				graph.append("id = " + idCount + "\n");
