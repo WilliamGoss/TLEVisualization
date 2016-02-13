@@ -53,10 +53,14 @@ public class graphVizCreation {
 			}
 		}
 		
-		if (className.equals("Memory.java")) 
-		{ 
+		//if (className.equals("Memory.java")) 
+		if (className.equals("Migration.java"))
+		{
 			drawGraph(className, relevantResults);
 		}
+		//{ 
+			//drawGraph(className, relevantResults);
+		//}
 		
 	}
 	
@@ -568,10 +572,10 @@ public class graphVizCreation {
 				nodeGraph.addEdge(gTwo, gFour);
 				
 				//Now we need to create the deleted class
-				graphVizObject gFive = new graphVizObject(true, result.selectedClass, "Deleted", result.version, "F3", nodeCount, false);
+				graphVizObject gFive = new graphVizObject(true, result.suppliedClass, "Deleted", result.version, "F3", nodeCount, false);
 				nodeCount++;
 				Tuple nTup = new Tuple(result.version, gFive);
-				classToNode.put(result.selectedClass, nTup);
+				classToNode.put(result.suppliedClass, nTup);
 				
 				nodeGraph.addVertex(gFive);
 				nodeGraph.addEdge(gTwo, gFive);				
@@ -638,7 +642,6 @@ public class graphVizCreation {
 			}
 		}
 		
-		System.out.println(nodeGraph.toString());
 		drawGraph.draw(nodeGraph);
 	}
 	

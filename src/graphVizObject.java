@@ -61,7 +61,7 @@ public class graphVizObject {
 		if (this.isClass)
 		{
 			graph.append("\"node" + this.nodeID + "\" [\n");
-			graph.append("label = <f0> " + this.className + " | <f1> " + this.action + " | <f2> " + this.version + " | <f3> " + this.feature + "\"\n");
+			graph.append("label = \"<f0> " + this.className + " | <f1> " + this.action + " | <f2> " + this.version + " | <f3> " + this.feature + "\"\n");
 			graph.append("shape = \"record\"\n");
 			graph.append("color = \"black\"\n");
 			if (!this.addCheck) { graph.append("style = \"dashed\""); }
@@ -70,12 +70,11 @@ public class graphVizObject {
 		else
 		{
 			graph.append("\"node" + this.nodeID + "\" [\n");
-			graph.append("label = " + this.action + "\"");
+			graph.append("label = \"" + this.action + "\"");
 			graph.append("shape = \"oval\"\n");
 			graph.append("color = \"black\"\n");
 			graph.append("];");
 		}
-		
 		
 		return graph.toString();
 	}
