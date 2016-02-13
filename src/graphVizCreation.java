@@ -432,6 +432,48 @@ public class graphVizCreation {
 			}
 			case 7:
 			{
+				//Check if the resulting class already exists from an older version.
+				//If it doesn't, it will need to be created as an original class.
+				graphVizObject gOne = null;
+				boolean oldNode = false;
+				if (classToNode.containsKey(removeJava(result.selectedClass)))
+				{
+					if (classToNode.get(removeJava(result.selectedClass)).version < result.version)
+					{
+						gOne = classToNode.get(removeJava(result.selectedClass)).gVO;
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gOne);
+					classToNode.put(removeJava(result.selectedClass), nTup);
+				}
+				
+				//Create the oval that shows an extend class action.
+				graphVizObject gTwo = new graphVizObject(false, "Obsolute function", nodeCount);
+				nodeCount++;
+	
+				//Create an edge from the gOne node to the gTwo node.
+				if (!oldNode) { nodeGraph.addVertex(gOne); }
+				nodeGraph.addVertex(gTwo);
+				nodeGraph.addEdge(gOne, gTwo);
+				
+				//Now we need to connect the oval to the added class
+				//But first, we need to see if the class was added by another scenario
+				//within the same version.
+				graphVizObject gThree = null;
+				gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Deleted", result.version, "F3", nodeCount, false);
+				nodeCount++;
+				Tuple nTup = new Tuple(result.version, gThree);
+				classToNode.put(removeJava(result.suppliedClass), nTup);
+				
+				//Create an edge from the oval to the result
+				nodeGraph.addVertex(gThree);
+				nodeGraph.addEdge(gTwo, gThree);
+				
 				break;
 			}
 			case 8:
