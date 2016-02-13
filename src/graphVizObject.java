@@ -54,13 +54,30 @@ public class graphVizObject {
 	}
 	
 	//Call this method on itself to draw the node.
-	public StringBuilder draw()
+	public String draw()
 	{
 		StringBuilder graph = new StringBuilder();
 		
+		if (this.isClass)
+		{
+			graph.append("\"node" + this.nodeID + "\" [\n");
+			graph.append("label = <f0> " + this.className + " | <f1> " + this.action + " | <f2> " + this.version + " | <f3> " + this.feature + "\"\n");
+			graph.append("shape = \"record\"\n");
+			graph.append("color = \"black\"\n");
+			if (!this.addCheck) { graph.append("style = \"dashed\""); }
+			graph.append("];\n");
+		}
+		else
+		{
+			graph.append("\"node" + this.nodeID + "\" [\n");
+			graph.append("label = " + this.action + "\"");
+			graph.append("shape = \"oval\"\n");
+			graph.append("color = \"black\"\n");
+			graph.append("];");
+		}
 		
 		
-		return graph;
+		return graph.toString();
 	}
 
 }

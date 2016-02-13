@@ -55,15 +55,6 @@ public class graphVizCreation {
 		
 		if (className.equals("Memory.java")) 
 		{ 
-			/*
-			for(ResultObject result: relevantResults)
-			{
-				System.out.println("Supplied Class: " + result.suppliedClass);
-				System.out.println("Result: " + result.selectedClass);
-				System.out.println("Scenario Selected: " + result.scenarioSelected);
-				System.out.println("Version: " + result.version);
-			}
-			*/
 			drawGraph(className, relevantResults);
 		}
 		
@@ -74,11 +65,7 @@ public class graphVizCreation {
 	 * Thus, we can iterate through them and create the graph from left to right.
 	 */
 	public static void drawGraph(String className, List<ResultObject> results)
-	{
-		StringBuilder graph = new StringBuilder();
-		graph.append("digraph g { graph [ rankdir = \"LR\"];\nnode [ fontsize = \"16\" shape = \"record\" ];\n");
-		graph.append("edge [];\n");
-		
+	{		
 		DirectedGraph<graphVizObject, DefaultEdge> nodeGraph = new DefaultDirectedGraph<graphVizObject, DefaultEdge>(DefaultEdge.class);
 		
 		//Dictionary will contain the relationship between classes and their nodes
@@ -86,7 +73,6 @@ public class graphVizCreation {
 		HashMap<String, Tuple> classToNode = new HashMap<String, Tuple>();
 		
 		int nodeCount = 0;
-		int idCount = 0;
 		
 		for(ResultObject result: results)
 		{
@@ -114,7 +100,7 @@ public class graphVizCreation {
 					classToNode.put(removeJava(result.selectedClass), nTup);
 				}
 				
-				//Create the oval that shows an extend class action.
+				//Create the oval that shows a create function action.
 				graphVizObject gTwo = new graphVizObject(false, "Create\nnew\nfunction", nodeCount);
 				nodeCount++;
 	
@@ -175,7 +161,7 @@ public class graphVizCreation {
 					classToNode.put(removeJava(result.selectedClass), nTup);
 				}
 				
-				//Create the oval that shows an extend class action.
+				//Create the oval that shows an extract class action.
 				graphVizObject gTwo = new graphVizObject(false, "Extract/nclass", nodeCount);
 				nodeCount++;
 	
@@ -198,6 +184,13 @@ public class graphVizCreation {
 						Tuple updatedNode = new Tuple(result.version, gThree);
 						classToNode.put(removeJava(result.suppliedClass), updatedNode);
 						oldNode = true;
+					}
+					else
+					{
+						gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted class", result.version, "F3", nodeCount, true);
+						nodeCount++;
+						Tuple nTup = new Tuple(result.version, gThree);
+						classToNode.put(removeJava(result.suppliedClass), nTup);
 					}
 				}
 				else
@@ -240,7 +233,7 @@ public class graphVizCreation {
 					classToNode.put(removeJava(result.selectedClass), nTup);
 				}
 				
-				//Create the oval that shows an extend class action.
+				//Create the oval that shows a promote method action.
 				graphVizObject gTwo = new graphVizObject(false, "Promote method", nodeCount);
 				nodeCount++;
 	
@@ -365,7 +358,7 @@ public class graphVizCreation {
 					classToNode.put(removeJava(result.selectedClass), nTup);
 				}
 				
-				//Create the oval graphviz object	
+				//Create the oval graphviz object to show an extracting superclass action.
 				graphVizObject gTwo = new graphVizObject(false, "Extracting\nsuperclass", nodeCount);
 				nodeCount++;
 	
@@ -452,8 +445,8 @@ public class graphVizCreation {
 					classToNode.put(removeJava(result.selectedClass), nTup);
 				}
 				
-				//Create the oval that shows an extend class action.
-				graphVizObject gTwo = new graphVizObject(false, "Obsolute function", nodeCount);
+				//Create the oval that shows an obsolete function action.
+				graphVizObject gTwo = new graphVizObject(false, "Obsolete function", nodeCount);
 				nodeCount++;
 	
 				//Create an edge from the gOne node to the gTwo node.
@@ -484,7 +477,7 @@ public class graphVizCreation {
 				boolean oldNode = false;
 				if (classToNode.containsKey(removeJava(result.suppliedClass)))
 				{
-					if (classToNode.get(removeJava(result.suppliedClass)).version < result.version)
+					if (classToNode.get(removeJava(result.suppliedClass)).version <= result.version)
 					{
 						gOne = classToNode.get(removeJava(result.suppliedClass)).gVO;
 						oldNode = true;
@@ -498,7 +491,7 @@ public class graphVizCreation {
 					classToNode.put(removeJava(result.suppliedClass), nTup);
 				}
 				
-				//Create the oval that shows an extend class action.
+				//Create the oval that shows a reallocate methods action.
 				graphVizObject gTwo = new graphVizObject(false, "Reallocate methods", nodeCount);
 				nodeCount++;
 	
@@ -508,7 +501,7 @@ public class graphVizCreation {
 				nodeGraph.addEdge(gOne, gTwo);
 				
 				Set<String> classes = splitClasses(result.selectedClass);
-				String[] classList = (String[]) classes.toArray();
+				String[] classList = classes.toArray(new String[classes.size()]);
 				//Now we need to connect the oval to the modified classes
 				//But first, we need to see if the class was added by another scenario
 				//within the same version.
@@ -524,6 +517,13 @@ public class graphVizCreation {
 						classToNode.put(classList[0], updatedNode);
 						oldNode = true;
 					}
+					else
+					{
+						gThree = new graphVizObject(true, classList[0], "Additional methods", result.version, "F3", nodeCount, true);
+						nodeCount++;
+						Tuple nTup = new Tuple(result.version, gThree);
+						classToNode.put(classList[0], nTup);
+					}
 				}
 				else
 				{
@@ -532,7 +532,7 @@ public class graphVizCreation {
 					Tuple nTup = new Tuple(result.version, gThree);
 					classToNode.put(classList[0], nTup);
 				}
-				
+
 				if (!oldNode) { nodeGraph.addVertex(gThree); }
 				nodeGraph.addEdge(gTwo, gThree);
 				
@@ -542,22 +542,29 @@ public class graphVizCreation {
 				{
 					if (classToNode.get(classList[1]).version == result.version)
 					{
-						gThree = classToNode.get(classList[1]).gVO;
-						gThree.addAction("Additional methods");
-						Tuple updatedNode = new Tuple(result.version, gThree);
+						gFour = classToNode.get(classList[1]).gVO;
+						gFour.addAction("Additional methods");
+						Tuple updatedNode = new Tuple(result.version, gFour);
 						classToNode.put(classList[1], updatedNode);
 						oldNode = true;
+					}
+					else
+					{
+						gFour = new graphVizObject(true, classList[1], "Additional methods", result.version, "F3", nodeCount, true);
+						nodeCount++;
+						Tuple nTup = new Tuple(result.version, gFour);
+						classToNode.put(classList[1], nTup);
 					}
 				}
 				else
 				{
-					gThree = new graphVizObject(true, classList[1], "Additional methods", result.version, "F3", nodeCount, true);
+					gFour = new graphVizObject(true, classList[1], "Additional methods", result.version, "F3", nodeCount, true);
 					nodeCount++;
-					Tuple nTup = new Tuple(result.version, gThree);
+					Tuple nTup = new Tuple(result.version, gFour);
 					classToNode.put(classList[1], nTup);
 				}
 				
-				if (!oldNode) { nodeGraph.addVertex(gThree); }
+				if (!oldNode) { nodeGraph.addVertex(gFour); }
 				nodeGraph.addEdge(gTwo, gFour);
 				
 				//Now we need to create the deleted class
@@ -573,16 +580,66 @@ public class graphVizCreation {
 			}
 			case 9:
 			{
+				//TODO: Finish this, but test9 seems broken in the Scenario Checker.
+				Set<String> classes = splitClasses(result.selectedClass);
+				String[] classList = classes.toArray(new String[classes.size()]);
+				//Since the result involves two classes, the initial step must be repeated twice.
+				graphVizObject gOne = null;
+				boolean oldNode = false;
+				if (classToNode.containsKey(result.selectedClass))
+				{
+					if (classToNode.get(result.selectedClass).version < result.version)
+					{
+						gOne = classToNode.get(result.selectedClass).gVO;
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gOne);
+					classToNode.put(removeJava(result.selectedClass), nTup);
+				}
+					
+				if (!oldNode) { nodeGraph.addVertex(gOne); }
+				
+				//Second class
+				graphVizObject gTwo = null;
+				oldNode = false;
+				if (classToNode.containsKey(result.selectedClass))
+				{
+					if (classToNode.get(result.selectedClass).version <= result.version)
+					{
+						gTwo = classToNode.get(result.selectedClass).gVO;
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gTwo = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gTwo);
+					classToNode.put(removeJava(result.selectedClass), nTup);
+				}
+					
+				if (!oldNode) { nodeGraph.addVertex(gTwo); }
+				
+				//Create the oval graphviz object to show a merge action.
+				graphVizObject gThree = new graphVizObject(false, "Merge classes", nodeCount);
+				nodeCount++;
+				
+				nodeGraph.addVertex(gThree);
+				nodeGraph.addEdge(gOne, gThree);
+				nodeGraph.addEdge(gTwo, gThree);
+				
 				break;
 			}
 			}
 		}
 		
-		graph.append("\n}");
-		
 		System.out.println(nodeGraph.toString());
-		
-		//System.out.println(graph.toString());
+		drawGraph.draw(nodeGraph);
 	}
 	
 	
