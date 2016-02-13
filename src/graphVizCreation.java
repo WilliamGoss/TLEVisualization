@@ -478,6 +478,97 @@ public class graphVizCreation {
 			}
 			case 8:
 			{
+				//Check if the resulting class already exists from an older version.
+				//If it doesn't, it will need to be created as an original class.
+				graphVizObject gOne = null;
+				boolean oldNode = false;
+				if (classToNode.containsKey(removeJava(result.suppliedClass)))
+				{
+					if (classToNode.get(removeJava(result.suppliedClass)).version < result.version)
+					{
+						gOne = classToNode.get(removeJava(result.suppliedClass)).gVO;
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gOne = new graphVizObject(true, removeJava(result.suppliedClass), "Original class", result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gOne);
+					classToNode.put(removeJava(result.suppliedClass), nTup);
+				}
+				
+				//Create the oval that shows an extend class action.
+				graphVizObject gTwo = new graphVizObject(false, "Reallocate methods", nodeCount);
+				nodeCount++;
+	
+				//Create an edge from the gOne node to the gTwo node.
+				if (!oldNode) { nodeGraph.addVertex(gOne); }
+				nodeGraph.addVertex(gTwo);
+				nodeGraph.addEdge(gOne, gTwo);
+				
+				Set<String> classes = splitClasses(result.selectedClass);
+				String[] classList = (String[]) classes.toArray();
+				//Now we need to connect the oval to the modified classes
+				//But first, we need to see if the class was added by another scenario
+				//within the same version.
+				graphVizObject gThree = null;
+				oldNode = false;
+				if (classToNode.containsKey(classList[0]))
+				{
+					if (classToNode.get(classList[0]).version == result.version)
+					{
+						gThree = classToNode.get(classList[0]).gVO;
+						gThree.addAction("Additional methods");
+						Tuple updatedNode = new Tuple(result.version, gThree);
+						classToNode.put(classList[0], updatedNode);
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gThree = new graphVizObject(true, classList[0], "Additional methods", result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gThree);
+					classToNode.put(classList[0], nTup);
+				}
+				
+				if (!oldNode) { nodeGraph.addVertex(gThree); }
+				nodeGraph.addEdge(gTwo, gThree);
+				
+				graphVizObject gFour = null;
+				oldNode = false;
+				if (classToNode.containsKey(classList[1]))
+				{
+					if (classToNode.get(classList[1]).version == result.version)
+					{
+						gThree = classToNode.get(classList[1]).gVO;
+						gThree.addAction("Additional methods");
+						Tuple updatedNode = new Tuple(result.version, gThree);
+						classToNode.put(classList[1], updatedNode);
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gThree = new graphVizObject(true, classList[1], "Additional methods", result.version, "F3", nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gThree);
+					classToNode.put(classList[1], nTup);
+				}
+				
+				if (!oldNode) { nodeGraph.addVertex(gThree); }
+				nodeGraph.addEdge(gTwo, gFour);
+				
+				//Now we need to create the deleted class
+				graphVizObject gFive = new graphVizObject(true, result.selectedClass, "Deleted", result.version, "F3", nodeCount, false);
+				nodeCount++;
+				Tuple nTup = new Tuple(result.version, gFive);
+				classToNode.put(result.selectedClass, nTup);
+				
+				nodeGraph.addVertex(gFive);
+				nodeGraph.addEdge(gTwo, gFive);				
+				
 				break;
 			}
 			case 9:
