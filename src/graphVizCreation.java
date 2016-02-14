@@ -53,14 +53,18 @@ public class graphVizCreation {
 			}
 		}
 		
-		//if (className.equals("Memory.java")) 
-		if (className.equals("Migration.java"))
+		if (className.equals("Memory.java")) 
+		//if (className.equals("Migration.java"))
 		{
+			//for(ResultObject res: relevantResults)
+			//{
+				//System.out.println("Supplied Class: " + res.suppliedClass);
+				//System.out.println("Result: " + res.selectedClass);
+				//System.out.println("Scenario: " + res.scenarioSelected);
+				//System.out.println("Version: " + res.version);
+			//}
 			drawGraph(className, relevantResults);
 		}
-		//{ 
-			//drawGraph(className, relevantResults);
-		//}
 		
 	}
 	
