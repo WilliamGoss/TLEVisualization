@@ -59,16 +59,19 @@ public class graphVizCreation {
 			}
 		}
 		
-		if (className.equals("Memory.java")) 
-		//if (className.equals("Migration.java"))
+		//if (className.equals("Memory.java")) 
+		//if (className.equals("UseStatement.java"))
+		if (className.equals("CommitLogAllocator.java"))
 		{
-			//for(ResultObject res: relevantResults)
-			//{
-				//System.out.println("Supplied Class: " + res.suppliedClass);
-				//System.out.println("Result: " + res.selectedClass);
-				//System.out.println("Scenario: " + res.scenarioSelected);
-				//System.out.println("Version: " + res.version);
-			//}
+			/*
+			for(ResultObject res: relevantResults)
+			{
+				System.out.println("Supplied Class: " + res.suppliedClass);
+				System.out.println("Result: " + res.selectedClass);
+				System.out.println("Scenario: " + res.scenarioSelected);
+				System.out.println("Version: " + getVersion(res.version-1));
+			}
+			*/
 			drawGraph(className, relevantResults);
 		}
 		
@@ -94,62 +97,42 @@ public class graphVizCreation {
 			{
 			case 1:
 			{
-				//Check if the resulting class already exists from an older version.
-				//If it doesn't, it will need to be created as an original class.
-				graphVizObject gOne = null;
-				boolean oldNode = false;
-				if (classToNode.containsKey(removeJava(result.selectedClass)))
-				{
-					if (classToNode.get(removeJava(result.selectedClass)).version <= result.version)
-					{
-						gOne = classToNode.get(removeJava(result.selectedClass)).gVO;
-						oldNode = true;
-					}
-				}
-				else
-				{
-					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
-					nodeCount++;
-					Tuple nTup = new Tuple(result.version, gOne);
-					classToNode.put(removeJava(result.selectedClass), nTup);
-				}
-				
 				//Create the oval that shows a create function action.
-				graphVizObject gTwo = new graphVizObject(false, "Create\nnew\nfunction", nodeCount);
+				graphVizObject gOne = new graphVizObject(false, "Create\nnew\nfunction", nodeCount);
 				nodeCount++;
-	
-				//Create an edge from the gOne node to the gTwo node.
-				if (!oldNode) { nodeGraph.addVertex(gOne); }
-				nodeGraph.addVertex(gTwo);
-				nodeGraph.addEdge(gOne, gTwo);
+				
+				nodeGraph.addVertex(gOne);
 				
 				//Now we need to connect the oval to the added class
 				//But first, we need to see if the class was added by another scenario
 				//within the same version.
-				graphVizObject gThree = null;
-				oldNode = false;
+				graphVizObject gTwo = null;
+				boolean oldNode = false;
 				if (classToNode.containsKey(removeJava(result.suppliedClass)))
 				{
 					if (classToNode.get(removeJava(result.suppliedClass)).version == result.version)
 					{
-						gThree = classToNode.get(removeJava(result.suppliedClass)).gVO;
-						gThree.addAction("Added class");
-						Tuple updatedNode = new Tuple(result.version, gThree);
+						gTwo = classToNode.get(removeJava(result.suppliedClass)).gVO;
+						gTwo.addAction("Added class");
+						Tuple updatedNode = new Tuple(result.version, gTwo);
 						classToNode.put(removeJava(result.suppliedClass), updatedNode);
 						oldNode = true;
 					}
 				}
 				else
 				{
-					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Added class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, true);
+					String feat = getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass));
+					if (feat.length() == 0) { feat = result.selectedClass; }
+					else { feat = feat + "," + result.selectedClass; }
+					gTwo = new graphVizObject(true, removeJava(result.suppliedClass), "Added class", getVersion(result.version-1), feat, nodeCount, true);
 					nodeCount++;
-					Tuple nTup = new Tuple(result.version, gThree);
+					Tuple nTup = new Tuple(result.version, gTwo);
 					classToNode.put(removeJava(result.suppliedClass), nTup);
 				}
 				
 				//Create an edge from the oval to the result
-				if (!oldNode) { nodeGraph.addVertex(gThree); }
-				nodeGraph.addEdge(gTwo, gThree);
+				if (!oldNode) { nodeGraph.addVertex(gTwo); }
+				nodeGraph.addEdge(gOne, gTwo);
 				
 				break;
 			}
@@ -176,7 +159,7 @@ public class graphVizCreation {
 				}
 				
 				//Create the oval that shows an extract class action.
-				graphVizObject gTwo = new graphVizObject(false, "Extract/nclass", nodeCount);
+				graphVizObject gTwo = new graphVizObject(false, "Extract\nclass", nodeCount);
 				nodeCount++;
 	
 				//Create an edge from the gOne node to the gTwo node.

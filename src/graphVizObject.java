@@ -50,7 +50,7 @@ public class graphVizObject {
 	//Add an action to the object.
 	public void addAction(String nodeAction)
 	{
-		this.action = this.action + "\n" + nodeAction;
+		this.action = this.action + "\\n" + nodeAction;
 	}
 	
 	//Call this method on itself to draw the node.

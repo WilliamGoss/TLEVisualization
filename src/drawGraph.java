@@ -27,7 +27,7 @@ public class drawGraph {
 		{
 			String[] edgeParts = edge.toString().split(":");
 			String nodeOne = graphToNode.get(edgeParts[0].substring(1, edgeParts[0].length()).trim());
-			String nodeTwo = graphToNode.get(edgeParts[1].substring(1, edgeParts[0].length()-1).trim());
+			String nodeTwo = graphToNode.get(edgeParts[1].substring(1, edgeParts[1].length()-1).trim());
 
 			graphViz.append("\"" + nodeOne + "\":f0 -> \"" + nodeTwo + "\":f0\n");
 			graphViz.append("[\nid = " + idCount + "\n];\n");
