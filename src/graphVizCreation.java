@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,8 +12,13 @@ import org.jgrapht.graph.*;
 
 public class graphVizCreation {
 	
-	public static void create(String cn, LinkedHashMap<String, List<ResultObject>> versionResult)
+	private static List<String> softwareVersions;
+	
+	public static void create(String cn, LinkedHashMap<String, List<ResultObject>> versionResult) throws IOException
 	{
+		//Declare softwareVersions to avoid nullpointer.
+		softwareVersions = new ArrayList<String>();
+		
 		String className = cn;
 		List<ResultObject> relevantResults = new ArrayList<ResultObject>();
 		
@@ -72,7 +78,7 @@ public class graphVizCreation {
 	 * The result objects should have been inserted by Version Number.
 	 * Thus, we can iterate through them and create the graph from left to right.
 	 */
-	public static void drawGraph(String className, List<ResultObject> results)
+	public static void drawGraph(String className, List<ResultObject> results) throws IOException
 	{		
 		DirectedGraph<graphVizObject, DefaultEdge> nodeGraph = new DefaultDirectedGraph<graphVizObject, DefaultEdge>(DefaultEdge.class);
 		
@@ -102,7 +108,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gOne);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -135,7 +141,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Added class", result.version, "F3", nodeCount, true);
+					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Added class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gThree);
 					classToNode.put(removeJava(result.suppliedClass), nTup);
@@ -163,7 +169,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gOne);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -195,7 +201,7 @@ public class graphVizCreation {
 					}
 					else
 					{
-						gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted class", result.version, "F3", nodeCount, true);
+						gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, true);
 						nodeCount++;
 						Tuple nTup = new Tuple(result.version, gThree);
 						classToNode.put(removeJava(result.suppliedClass), nTup);
@@ -203,7 +209,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted class", result.version, "F3", nodeCount, true);
+					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gThree);
 					classToNode.put(removeJava(result.suppliedClass), nTup);
@@ -235,7 +241,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gOne);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -268,7 +274,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Including promoted method", result.version, "F3", nodeCount, true);
+					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Including promoted method", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gThree);
 					classToNode.put(removeJava(result.suppliedClass), nTup);
@@ -296,7 +302,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gOne);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -329,7 +335,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Subclass of " + removeJava(result.selectedClass), result.version, "F3", nodeCount, true);
+					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Subclass of " + removeJava(result.selectedClass), getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gThree);
 					classToNode.put(removeJava(result.suppliedClass), nTup);
@@ -360,7 +366,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gOne);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -393,7 +399,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted superclass", result.version, "F3", nodeCount, true);
+					gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Extracted superclass", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gThree);
 					classToNode.put(removeJava(result.suppliedClass), nTup);
@@ -421,7 +427,7 @@ public class graphVizCreation {
 				//from this version we can use.
 				else
 				{
-					gFour = new graphVizObject(true, removeJava(result.selectedClass), "Remnant class", result.version, "F3", nodeCount, true);
+					gFour = new graphVizObject(true, removeJava(result.selectedClass), "Remnant class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gFour);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -447,7 +453,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gOne);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -466,7 +472,7 @@ public class graphVizCreation {
 				//But first, we need to see if the class was added by another scenario
 				//within the same version.
 				graphVizObject gThree = null;
-				gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Deleted", result.version, "F3", nodeCount, false);
+				gThree = new graphVizObject(true, removeJava(result.suppliedClass), "Deleted", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, false);
 				nodeCount++;
 				Tuple nTup = new Tuple(result.version, gThree);
 				classToNode.put(removeJava(result.suppliedClass), nTup);
@@ -493,14 +499,14 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gOne = new graphVizObject(true, removeJava(result.suppliedClass), "Original class", result.version, "F3", nodeCount, true);
+					gOne = new graphVizObject(true, removeJava(result.suppliedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gOne);
 					classToNode.put(removeJava(result.suppliedClass), nTup);
 				}
 				
 				//Create the oval that shows a reallocate methods action.
-				graphVizObject gTwo = new graphVizObject(false, "Reallocate methods", nodeCount);
+				graphVizObject gTwo = new graphVizObject(false, "Reallocate\nmethods", nodeCount);
 				nodeCount++;
 	
 				//Create an edge from the gOne node to the gTwo node.
@@ -527,7 +533,7 @@ public class graphVizCreation {
 					}
 					else
 					{
-						gThree = new graphVizObject(true, classList[0], "Additional methods", result.version, "F3", nodeCount, true);
+						gThree = new graphVizObject(true, classList[0], "Additional methods", getVersion(result.version-1), getFeatures.get(getVersion(result.version), classList[0]), nodeCount, true);
 						nodeCount++;
 						Tuple nTup = new Tuple(result.version, gThree);
 						classToNode.put(classList[0], nTup);
@@ -535,7 +541,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gThree = new graphVizObject(true, classList[0], "Additional methods", result.version, "F3", nodeCount, true);
+					gThree = new graphVizObject(true, classList[0], "Additional methods", getVersion(result.version-1), getFeatures.get(getVersion(result.version), classList[0]), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gThree);
 					classToNode.put(classList[0], nTup);
@@ -558,7 +564,7 @@ public class graphVizCreation {
 					}
 					else
 					{
-						gFour = new graphVizObject(true, classList[1], "Additional methods", result.version, "F3", nodeCount, true);
+						gFour = new graphVizObject(true, classList[1], "Additional methods", getVersion(result.version-1), getFeatures.get(getVersion(result.version), classList[1]), nodeCount, true);
 						nodeCount++;
 						Tuple nTup = new Tuple(result.version, gFour);
 						classToNode.put(classList[1], nTup);
@@ -566,7 +572,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gFour = new graphVizObject(true, classList[1], "Additional methods", result.version, "F3", nodeCount, true);
+					gFour = new graphVizObject(true, classList[1], "Additional methods", getVersion(result.version-1), getFeatures.get(getVersion(result.version), classList[1]), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gFour);
 					classToNode.put(classList[1], nTup);
@@ -576,7 +582,7 @@ public class graphVizCreation {
 				nodeGraph.addEdge(gTwo, gFour);
 				
 				//Now we need to create the deleted class
-				graphVizObject gFive = new graphVizObject(true, result.suppliedClass, "Deleted", result.version, "F3", nodeCount, false);
+				graphVizObject gFive = new graphVizObject(true, result.suppliedClass, "Deleted", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.suppliedClass)), nodeCount, false);
 				nodeCount++;
 				Tuple nTup = new Tuple(result.version, gFive);
 				classToNode.put(result.suppliedClass, nTup);
@@ -604,7 +610,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					gOne = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version-1), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gOne);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -625,7 +631,7 @@ public class graphVizCreation {
 				}
 				else
 				{
-					gTwo = new graphVizObject(true, removeJava(result.selectedClass), "Original class", result.version, "F3", nodeCount, true);
+					gTwo = new graphVizObject(true, removeJava(result.selectedClass), "Original class", getVersion(result.version), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, true);
 					nodeCount++;
 					Tuple nTup = new Tuple(result.version, gTwo);
 					classToNode.put(removeJava(result.selectedClass), nTup);
@@ -699,6 +705,29 @@ public class graphVizCreation {
 		String[] classSplit = className.split(".java");
 		cleanClass = classSplit[0];
 		return cleanClass;
+	}
+	
+	//The current bat file used to generate scenario results numbers everything one additional time.
+	//If it is changed, you'll want to change the "ver" variable.
+	private static String getVersion(int ver) throws IOException
+	{
+		if (softwareVersions.isEmpty())
+		{
+			List<String> sVersions = populateVersionNumber.populateNumbers();
+			
+			for(String bigVersion: sVersions)
+			{
+				String[] versionSplit = bigVersion.split("-");
+				String version =  "";
+				if (versionSplit.length > 3) { version = versionSplit[2] + "-" + versionSplit[3]; }
+				else version = versionSplit[2];
+				
+				softwareVersions.add(version);
+			}
+		}
+		
+		return softwareVersions.get(ver);
+		
 	}
 
 }

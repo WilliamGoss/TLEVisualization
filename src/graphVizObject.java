@@ -6,7 +6,7 @@ public class graphVizObject {
 	
 	public String className;
 	public String action;
-	public int version;
+	public String version;
 	public String feature;
 	public boolean isClass;
 	public int nodeID;
@@ -14,7 +14,7 @@ public class graphVizObject {
 	
 	public List<String> children;
 	
-	public graphVizObject(boolean classCheck, String cName, String cAction, int cVersion, String cFeature, int nID, boolean isAdded)
+	public graphVizObject(boolean classCheck, String cName, String cAction, String cVersion, String cFeature, int nID, boolean isAdded)
 	{
 		//Oval or Square
 		isClass = classCheck;
