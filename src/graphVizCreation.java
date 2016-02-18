@@ -210,8 +210,89 @@ public class graphVizCreation {
 			}
 			case 3:
 			{
-				System.out.println("Added/Deleted: " + result.suppliedClass);
-				System.out.println("Result: " + result.selectedClass);
+				Set<String> classes = splitClasses(result.selectedClass);
+				String[] classList = classes.toArray(new String[classes.size()]);
+				//Since the result involves two classes, the initial step must be repeated twice.
+				graphVizObject gOne = null;
+				boolean oldNode = false;
+				if (classToNode.containsKey(result.selectedClass))
+				{
+					if (classToNode.get(result.selectedClass).version < result.version)
+					{
+						gOne = classToNode.get(result.selectedClass).gVO;
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gOne = new graphVizObject(true, classList[0], "Original class", getVersion(result.version), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, false);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gOne);
+					classToNode.put(removeJava(result.selectedClass), nTup);
+				}
+					
+				if (!oldNode) { nodeGraph.addVertex(gOne); }
+				
+				//Second class
+				graphVizObject gTwo = null;
+				oldNode = false;
+				if (classToNode.containsKey(result.selectedClass))
+				{
+					if (classToNode.get(result.selectedClass).version <= result.version)
+					{
+						gTwo = classToNode.get(result.selectedClass).gVO;
+						oldNode = true;
+					}
+				}
+				else
+				{
+					gTwo = new graphVizObject(true, classList[1], "Original class", getVersion(result.version), getFeatures.get(getVersion(result.version), removeJava(result.selectedClass)), nodeCount, false);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gTwo);
+					classToNode.put(removeJava(result.selectedClass), nTup);
+				}
+					
+				if (!oldNode) { nodeGraph.addVertex(gTwo); }
+				
+				//Create the oval graphviz object to show a merge action.
+				graphVizObject gThree = new graphVizObject(false, "Merge classes", nodeCount);
+				nodeCount++;
+				
+				nodeGraph.addVertex(gThree);
+				nodeGraph.addEdge(gOne, gThree);
+				nodeGraph.addEdge(gTwo, gThree);
+				
+				//Merged into class
+				graphVizObject gFour = null;
+				oldNode = false;
+				if (classToNode.containsKey(removeJava(result.suppliedClass)))
+				{
+					if (classToNode.get(removeJava(result.suppliedClass)).version == result.version + 1)
+					{
+						gFour = classToNode.get(removeJava(result.suppliedClass)).gVO;
+						gFour.addAction("Additional methods");
+						Tuple updatedNode = new Tuple(result.version, gFour);
+						classToNode.put(removeJava(result.suppliedClass), updatedNode);
+						oldNode = true;
+					}
+					else
+					{
+						gFour = new graphVizObject(true, removeJava(result.suppliedClass), "Merged class", getVersion(result.version), getFeatures.get(getVersion(result.version), classList[1]), nodeCount, true);
+						nodeCount++;
+						Tuple nTup = new Tuple(result.version, gFour);
+						classToNode.put(classList[1], nTup);
+					}
+				}
+				else
+				{
+					gFour = new graphVizObject(true, removeJava(result.suppliedClass), "Merged class", getVersion(result.version), getFeatures.get(getVersion(result.version), classList[1]), nodeCount, true);
+					nodeCount++;
+					Tuple nTup = new Tuple(result.version, gFour);
+					classToNode.put(removeJava(result.suppliedClass), nTup);
+				}
+				
+				if (!oldNode) { nodeGraph.addVertex(gFour); }
+				nodeGraph.addEdge(gThree, gFour);
 				
 				break;
 			}
@@ -586,7 +667,6 @@ public class graphVizCreation {
 			}
 			case 9:
 			{
-				System.out.println(result.selectedClass);
 				//Some classes have no result.
 				if (result.selectedClass.equals("NONE")) break;
 				
